@@ -39,18 +39,111 @@ smote = SMOTE(sampling_strategy='auto')
 X_train_resampled, y_train_resampled = smote.fit_resample(X_train_imputed, y_train)
 X_val_resampled, y_val_resampled = smote.fit_resample(X_val_imputed, y_val)
 
-print(sum(y_train_resampled ==1), sum(y_val_resampled == 1))
+print(sum(y_train_resampled == 1), sum(y_val_resampled == 1))
 
 # nan_indices = np.isnan(X_train_imputed)
 # nan_count = np.sum(nan_indices)
 # print("Number of NaN values in X_train_imputed:", nan_count)
 
-# clf = HistGradientBoostingClassifier()
+
+# from sklearn.ensemble import BaggingClassifier
+# from sklearn.tree import DecisionTreeClassifier
+# from sklearn.metrics import accuracy_score
+
+# # Initialize the base decision tree classifier
+# base_classifier = DecisionTreeClassifier(random_state=42)
+
+# # Initialize the bagging classifier with the decision tree as the base estimator
+# bagging_classifier = BaggingClassifier(base_estimator=base_classifier, n_estimators=10, random_state=42)
+
+# # Train the bagging classifier on the training data
+# bagging_classifier.fit(X_train_resampled, y_train_resampled)
+
+# # Make predictions on the testing data
+# y_pred = bagging_classifier.predict(X_val_resampled)
+
+# # Calculate the accuracy of the model
+# accuracy = accuracy_score(y_val_resampled, y_pred)
+# print("Accuracy:", accuracy)
+
+
+# from sklearn.ensemble import HistGradientBoostingClassifier
+# from sklearn.model_selection import GridSearchCV
+# import numpy as np
+
+# clf = HistGradientBoostingClassifier(learning_rate=0.15, max_iter=110)
+
 # clf.fit(X_train_resampled, y_train_resampled)
 
 # # Evaluate the model
 # accuracy = clf.score(X_val_resampled, y_val_resampled)
 # print("Validation Accuracy:", accuracy)
+
+
+from sklearn.ensemble import VotingClassifier
+from sklearn.metrics import accuracy_score
+from sklearn.ensemble import HistGradientBoostingClassifier
+from sklearn.ensemble import StackingClassifier
+from sklearn.linear_model import LogisticRegression
+from sklearn.metrics import accuracy_score
+
+scores = []
+for i in range(1000):
+    hgb_model_1 = HistGradientBoostingClassifier(learning_rate=0.2, max_iter=150)
+    hgb_model_2 = HistGradientBoostingClassifier(learning_rate=0.2, max_iter=150)
+    hgb_model_3 = HistGradientBoostingClassifier(learning_rate=0.2, max_iter=150)
+
+    # Combine base models into a voting classifier
+    voting_classifier = VotingClassifier(estimators=[('hgb1', hgb_model_1), ('hgb2', hgb_model_2), ('hgb3', hgb_model_3)], voting='soft')
+
+    # Train the voting classifier
+    voting_classifier.fit(X_train_resampled, y_train_resampled)
+
+    # Make predictions
+    predictions = voting_classifier.predict(X_val_resampled)
+
+    hgb_model_1.fit(X_train_resampled, y_train_resampled)
+    hgb_model_2.fit(X_train_resampled, y_train_resampled)
+    hgb_model_3.fit(X_train_resampled, y_train_resampled)
+
+    # Generate predictions on the validation set
+    predictions_1 = hgb_model_1.predict(X_val_resampled)
+    predictions_2 = hgb_model_2.predict(X_val_resampled)
+    predictions_3 = hgb_model_3.predict(X_val_resampled)
+
+    # Create a meta-model
+    meta_model = LogisticRegression()
+
+    # Create a stacked classifier
+    stacked_clf = StackingClassifier(estimators=[
+        ('voting', voting_classifier), 
+        ('hgb1', hgb_model_1), 
+        ('hgb2', hgb_model_2), 
+        ('hgb3', hgb_model_3)], 
+        final_estimator=meta_model)
+
+    # Train the stacked classifier on the predictions
+
+    stacked_clf.fit(np.column_stack((predictions_1, predictions_2, predictions_3)), y_val_resampled)
+
+    # Make predictions on the test set
+    test_predictions_1 = hgb_model_1.predict(X_val_resampled)
+    test_predictions_2 = hgb_model_2.predict(X_val_resampled)
+    test_predictions_3 = hgb_model_3.predict(X_val_resampled)
+    test_predictions_voting = voting_classifier.predict(X_val_resampled)
+
+
+    test_predictions_stacked = stacked_clf.predict(np.column_stack((test_predictions_2, test_predictions_3, test_predictions_voting)))
+
+    # Calculate accuracy
+    accuracy_stacked = accuracy_score(y_val_resampled, test_predictions_stacked)
+    print(f"Stacked Classifier Accuracy #{i}:", accuracy_stacked)
+    scores.append(accuracy_stacked)
+print(scores)
+print(sum(scores)/len(scores))
+
+
+
 
 # class_weights = {0: 1, 1: 2.25}
 
@@ -76,29 +169,29 @@ print(sum(y_train_resampled ==1), sum(y_val_resampled == 1))
 # print("F1 Score:", f1)
 
 
-input_dim = X.shape[1]
+# input_dim = X.shape[1]
 
-# custom_optimizer = tf.keras.optimizers.Adam(learning_rate=0.0015)
+# # custom_optimizer = tf.keras.optimizers.Adam(learning_rate=0.0015)
 
-model = Sequential([
-    Dense(128, activation='relu', input_shape=(input_dim,)),
-    Dropout(0.5),
-    Dense(64, activation='relu'),
-    Dropout(0.5),
-    Dense(32, activation='relu'),
-    Dropout(0.5),
-    BatchNormalization(),
-    Dense(1, activation='sigmoid')
-])
+# model = Sequential([
+#     Dense(128, activation='relu', input_shape=(input_dim,)),
+#     Dropout(0.5),
+#     Dense(64, activation='relu'),
+#     Dropout(0.5),
+#     Dense(32, activation='relu'),
+#     Dropout(0.5),
+#     BatchNormalization(),
+#     Dense(1, activation='sigmoid')
+# ])
 
-model.compile(optimizer='adam',
-              loss='binary_crossentropy',
-              metrics=['accuracy'])
+# model.compile(optimizer='adam',
+#               loss='binary_crossentropy',
+#               metrics=['accuracy'])
 
-history = model.fit(X_train_resampled, y_train_resampled, epochs=1000, validation_data=(X_val_resampled, y_val_resampled))
+# history = model.fit(X_train_resampled, y_train_resampled, epochs=1000, validation_data=(X_val_resampled, y_val_resampled))
 
-val_loss, val_accuracy = model.evaluate(X_val_resampled, y_val_resampled)
-print("Validation Accuracy:", val_accuracy)
+# val_loss, val_accuracy = model.evaluate(X_val_resampled, y_val_resampled)
+# print("Validation Accuracy:", val_accuracy)
 
 # from sklearn.neighbors import KNeighborsClassifier
 
