@@ -105,6 +105,8 @@ for i in range(len(vcf_list)):
 
 df.to_excel('vcf_data.xlsx', index=False)
 
+#BCF_File irrelevant data
+
 #df.to_excel('clinvar_vcf.xlsx', index=False)
 
 #columns = ['PRECISE', 'IMPRECISE', 'SVTYPE', 'SVMETHOD', 'CHR2', 'PE', 'MAPQ', 'CT', 'CIPOS', 'CIEND', 'SRMAPQ', 'INSLEN', 'HOMLEN', 'SR', 'SRQ', 'CONSENSUS', 'CE', 'GT', 'GL', 'GQ', 'FT', 'RCL', 'RC', 'RCR', 'CN', 'DR', 'DV', 'RR', 'RV', "FILTER", "PHENOTYPE"]
