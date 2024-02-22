@@ -41,43 +41,43 @@ X_val_resampled, y_val_resampled = smote.fit_resample(X_val_imputed, y_val)
 
 print(sum(y_train_resampled == 1), sum(y_val_resampled == 1))
 
-# nan_indices = np.isnan(X_train_imputed)
-# nan_count = np.sum(nan_indices)
-# print("Number of NaN values in X_train_imputed:", nan_count)
+nan_indices = np.isnan(X_train_imputed)
+nan_count = np.sum(nan_indices)
+print("Number of NaN values in X_train_imputed:", nan_count)
 
 
-# from sklearn.ensemble import BaggingClassifier
-# from sklearn.tree import DecisionTreeClassifier
-# from sklearn.metrics import accuracy_score
+from sklearn.ensemble import BaggingClassifier
+from sklearn.tree import DecisionTreeClassifier
+from sklearn.metrics import accuracy_score
 
-# # Initialize the base decision tree classifier
-# base_classifier = DecisionTreeClassifier(random_state=42)
+# Initialize the base decision tree classifier
+base_classifier = DecisionTreeClassifier(random_state=42)
 
-# # Initialize the bagging classifier with the decision tree as the base estimator
-# bagging_classifier = BaggingClassifier(base_estimator=base_classifier, n_estimators=10, random_state=42)
+# Initialize the bagging classifier with the decision tree as the base estimator
+bagging_classifier = BaggingClassifier(base_estimator=base_classifier, n_estimators=10, random_state=42)
 
-# # Train the bagging classifier on the training data
-# bagging_classifier.fit(X_train_resampled, y_train_resampled)
+# Train the bagging classifier on the training data
+bagging_classifier.fit(X_train_resampled, y_train_resampled)
 
-# # Make predictions on the testing data
-# y_pred = bagging_classifier.predict(X_val_resampled)
+# Make predictions on the testing data
+y_pred = bagging_classifier.predict(X_val_resampled)
 
-# # Calculate the accuracy of the model
-# accuracy = accuracy_score(y_val_resampled, y_pred)
-# print("Accuracy:", accuracy)
+# Calculate the accuracy of the model
+accuracy = accuracy_score(y_val_resampled, y_pred)
+print("Accuracy:", accuracy)
 
 
-# from sklearn.ensemble import HistGradientBoostingClassifier
-# from sklearn.model_selection import GridSearchCV
-# import numpy as np
+from sklearn.ensemble import HistGradientBoostingClassifier
+from sklearn.model_selection import GridSearchCV
+import numpy as np
 
-# clf = HistGradientBoostingClassifier(learning_rate=0.15, max_iter=110)
+clf = HistGradientBoostingClassifier(learning_rate=0.15, max_iter=110)
 
-# clf.fit(X_train_resampled, y_train_resampled)
+clf.fit(X_train_resampled, y_train_resampled)
 
-# # Evaluate the model
-# accuracy = clf.score(X_val_resampled, y_val_resampled)
-# print("Validation Accuracy:", accuracy)
+# Evaluate the model
+accuracy = clf.score(X_val_resampled, y_val_resampled)
+print("Validation Accuracy:", accuracy)
 
 
 from sklearn.ensemble import VotingClassifier
@@ -145,99 +145,99 @@ print(sum(scores)/len(scores))
 
 
 
-# class_weights = {0: 1, 1: 2.25}
+class_weights = {0: 1, 1: 2.25}
 
-# model = RandomForestClassifier(max_depth=200, class_weight=class_weights)
-# model.fit(X_train_resampled, y_train_resampled)
+model = RandomForestClassifier(max_depth=200, class_weight=class_weights)
+model.fit(X_train_resampled, y_train_resampled)
 
-# from sklearn.metrics import accuracy_score, classification_report
-# # Assuming 'model' is your trained machine learning model
-# y_pred = model.predict(X_val_resampled)
-# from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score, confusion_matrix
+from sklearn.metrics import accuracy_score, classification_report
+# Assuming 'model' is your trained machine learning model
+y_pred = model.predict(X_val_resampled)
+from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score, confusion_matrix
 
-# # Example evaluation metrics
-# accuracy = accuracy_score(y_val_resampled, y_pred)
-# precision = precision_score(y_val_resampled, y_pred)
-# recall = recall_score(y_val_resampled, y_pred)
-# f1 = f1_score(y_val_resampled, y_pred)
-# conf_matrix = confusion_matrix(y_val_resampled, y_pred)
+# Example evaluation metrics
+accuracy = accuracy_score(y_val_resampled, y_pred)
+precision = precision_score(y_val_resampled, y_pred)
+recall = recall_score(y_val_resampled, y_pred)
+f1 = f1_score(y_val_resampled, y_pred)
+conf_matrix = confusion_matrix(y_val_resampled, y_pred)
 
-# print("Accuracy:", accuracy)
-# print(conf_matrix)
-# print("Precision:", precision)
-# print("Recall:", recall)
-# print("F1 Score:", f1)
+print("Accuracy:", accuracy)
+print(conf_matrix)
+print("Precision:", precision)
+print("Recall:", recall)
+print("F1 Score:", f1)
 
 
-# input_dim = X.shape[1]
+input_dim = X.shape[1]
 
-# # custom_optimizer = tf.keras.optimizers.Adam(learning_rate=0.0015)
+# custom_optimizer = tf.keras.optimizers.Adam(learning_rate=0.0015)
 
-# model = Sequential([
-#     Dense(128, activation='relu', input_shape=(input_dim,)),
-#     Dropout(0.5),
-#     Dense(64, activation='relu'),
-#     Dropout(0.5),
-#     Dense(32, activation='relu'),
-#     Dropout(0.5),
-#     BatchNormalization(),
-#     Dense(1, activation='sigmoid')
-# ])
+model = Sequential([
+    Dense(128, activation='relu', input_shape=(input_dim,)),
+    Dropout(0.5),
+    Dense(64, activation='relu'),
+    Dropout(0.5),
+    Dense(32, activation='relu'),
+    Dropout(0.5),
+    BatchNormalization(),
+    Dense(1, activation='sigmoid')
+])
 
-# model.compile(optimizer='adam',
-#               loss='binary_crossentropy',
-#               metrics=['accuracy'])
+model.compile(optimizer='adam',
+              loss='binary_crossentropy',
+              metrics=['accuracy'])
 
-# history = model.fit(X_train_resampled, y_train_resampled, epochs=1000, validation_data=(X_val_resampled, y_val_resampled))
+history = model.fit(X_train_resampled, y_train_resampled, epochs=1000, validation_data=(X_val_resampled, y_val_resampled))
 
-# val_loss, val_accuracy = model.evaluate(X_val_resampled, y_val_resampled)
-# print("Validation Accuracy:", val_accuracy)
+val_loss, val_accuracy = model.evaluate(X_val_resampled, y_val_resampled)
+print("Validation Accuracy:", val_accuracy)
 
-# from sklearn.neighbors import KNeighborsClassifier
+from sklearn.neighbors import KNeighborsClassifier
 
-# knn = KNeighborsClassifier(n_neighbors=80)
+knn = KNeighborsClassifier(n_neighbors=80)
 
-# # Train the model
-# knn.fit(X_train_imputed, y_train)
+# Train the model
+knn.fit(X_train_imputed, y_train)
 
-# # Make predictions on the testing data
-# y_pred = knn.predict(X_val_imputed)
+# Make predictions on the testing data
+y_pred = knn.predict(X_val_imputed)
 
-# # Evaluate the model
-# accuracy = accuracy_score(y_val, y_pred)
-# print("Accuracy:", accuracy)
+# Evaluate the model
+accuracy = accuracy_score(y_val, y_pred)
+print("Accuracy:", accuracy)
 
-# from sklearn.cluster import KMeans
-# from sklearn.preprocessing import StandardScaler
+from sklearn.cluster import KMeans
+from sklearn.preprocessing import StandardScaler
 
-# # Assuming X is your feature matrix
-# # Standardize the features
-# scaler = StandardScaler()
-# X_scaled = scaler.fit_transform(X_train_imputed)
+# Assuming X is your feature matrix
+# Standardize the features
+scaler = StandardScaler()
+X_scaled = scaler.fit_transform(X_train_imputed)
 
-# # Instantiate KMeans with k=3 (number of clusters)
-# kmeans = KMeans(n_clusters=3, random_state=42)
+# Instantiate KMeans with k=3 (number of clusters)
+kmeans = KMeans(n_clusters=3, random_state=42)
 
-# # Fit the model to the scaled data
-# kmeans.fit(X_scaled)
+# Fit the model to the scaled data
+kmeans.fit(X_scaled)
 
-# # Predict the cluster labels
-# cluster_labels = kmeans.predict(X_scaled)
+# Predict the cluster labels
+cluster_labels = kmeans.predict(X_scaled)
 
-# # Analyze the clusters (e.g., centroids, cluster sizes)
-# centroids = kmeans.cluster_centers_
-# cluster_sizes = {i: sum(cluster_labels == i) for i in range(kmeans.n_clusters)}
+# Analyze the clusters (e.g., centroids, cluster sizes)
+centroids = kmeans.cluster_centers_
+cluster_sizes = {i: sum(cluster_labels == i) for i in range(kmeans.n_clusters)}
 
-# from sklearn.metrics import silhouette_score, davies_bouldin_score, calinski_harabasz_score
+from sklearn.metrics import silhouette_score, davies_bouldin_score, calinski_harabasz_score
 
-# # Silhouette Score
-# silhouette = silhouette_score(X_scaled, cluster_labels)
-# print("Silhouette Score:", silhouette)
+# Silhouette Score
+silhouette = silhouette_score(X_scaled, cluster_labels)
+print("Silhouette Score:", silhouette)
 
-# # Davies-Bouldin Index
-# db_index = davies_bouldin_score(X_scaled, cluster_labels)
-# print("Davies-Bouldin Index:", db_index)
+# Davies-Bouldin Index
+db_index = davies_bouldin_score(X_scaled, cluster_labels)
+print("Davies-Bouldin Index:", db_index)
 
-# # Calinski-Harabasz Index
-# ch_index = calinski_harabasz_score(X_scaled, cluster_labels)
-# print("Calinski-Harabasz Index:", ch_index)
+# Calinski-Harabasz Index
+ch_index = calinski_harabasz_score(X_scaled, cluster_labels)
+print("Calinski-Harabasz Index:", ch_index)
