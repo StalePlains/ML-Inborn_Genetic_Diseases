@@ -9,4 +9,4 @@ Aneuploidy_Processing: preprocess original vcf file into xlsx file
 
 data_filtering: preprocess and standardization, along with filterization
 
-Model: contains several models, some commented out for convenience
+Model: contains final Models
