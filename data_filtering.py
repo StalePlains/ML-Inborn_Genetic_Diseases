@@ -9,6 +9,15 @@ from imblearn.over_sampling import SMOTE
 
 df = pd.read_excel("C:\\Users\\inspi\\Desktop\\Research\\vcf_data.xlsx")
 
+# possible = set()
+# for value in df['CLNDN']:
+#     possible.add(value)
+
+# print(possible)
+
+# NEXT STEP: NORMALIZE ALL DATA
+
+df = df[(df['CLNSIG'].isin(['Benign', 'Likely_benign', 'Uncertain_significance', 'Pathogenic', 'Likely_pathogenic', 'Conflicting_classifications_of_pathogenicity']))]
 
 # REF = Reference sequence, ORIGIN = Origin of phenotype (e.g. parental), AF_* = Allele Frequency, CHROM = Chromosome, CLINSIG = Benign, Likely_Benign, Pathogenic, CLNDN = CLinical Disease Name, POS = Position, ALT = Alternate Sequence, CLNVC = Variant Type
 desired_columns = ['REF', "ORIGIN", "AF_ESP", "AF_TGP", "CHROM", "CLNSIG", "CLNDN", "AF_EXAC", "POS", "ALT", "CLNVC"]
@@ -30,17 +39,6 @@ variant_type_mapping = {
 # Map the variant types to their numerical labels using the defined mapping
 df['CLNVC'] = df['CLNVC'].map(variant_type_mapping)
 
-# df = df[((df['CLNSIG'].isin(['Benign', 'Likely_Benign'])) & (df['CLNDN'].isin(['not_provided']))) | ((df['CLNSIG'].isin(['Likely_pathogenic', 'Pathogenic'])) & (df['CLNDN'].isin(['Inborn_genetic_diseases'])))]
-df = df[(df['CLNDN']=='Inborn_genetic_diseases') & ((df['CLNSIG'] == 'Pathogenic')) | (((df['CLNDN']=='not_provided') & (df['CLNSIG'] == 'Benign')) | ((df['CLNSIG'] == 'Likely_Benign') & (df['CLNDN'] == 'not_provided')))]
-
-df = df[(df['CLNDN'] == 'Inborn_genetic_diseases') | (df['CLNDN'] == 'not_provided')]
-
-minority_class = df[df['CLNDN'] == 'Inborn_genetic_diseases']
-majority_class = df[df['CLNDN'] == 'not_provided']
-
-print(len(majority_class))
-print(len(minority_class))
-
 # # Perform a left join between the entire database and your new sample
 # merged_df = pd.merge(df, undersampled_majority, how='left', indicator=True)
 
@@ -54,10 +52,8 @@ print(len(minority_class))
 
 # df = df.sample(frac=1, random_state=42).reset_index(drop=True)
 
-mapping = {'Inborn_genetic_diseases': 1, 'not_provided': 0}
-
 # Apply the mapping to the 'CLNDN' column
-df['CLNDN_ENC'] = df['CLNDN'].map(mapping)
+df['CLNDN_ENC'] = df['CLNDN'].apply(lambda x: 1 if x != 'not_provided' else 0)
 # unseen_rows['CLNDN_ENC'] = df['CLNDN'].map(mapping)
 
 df = df.drop(columns=['CLNDN'])
@@ -65,7 +61,6 @@ df = df.drop(columns=['CLNDN'])
 
 df['LENGTH'] = abs(df['REF'].str.len() - df['ALT'].str.len())
 #unseen_rows['LENGTH'] = abs(unseen_rows['REF'].str.len() - unseen_rows['ALT'].str.len())
-
 
 df['REF_A'] = df['REF'].str.count('A')
 df['REF_T'] = df['REF'].str.count('T')
@@ -114,14 +109,18 @@ df = df.drop(columns=['CLNSIG'])
 
 #unseen_rows['CLNSIG_ENC'] = label_encoder.fit_transform(unseen_rows['CLNSIG'])
 #unseen_rows = unseen_rows.drop(columns=['CLNSIG'])
-
-# Assuming 'df' is your DataFrame and 'POS' is the column containing POS values
-pos_values = df['POS'].values.reshape(-1, 1)  # Reshape to 2D array as required by MinMaxScaler
 scaler = MinMaxScaler()
-normalized_pos = scaler.fit_transform(pos_values)
+# Create for loop for normalizing values
 
-# Replace the original POS column with the normalized values
-df['POS'] = normalized_pos
+pos_values = df['POS'].values.reshape(-1, 1)  # Reshape to 2D array as required by MinMaxScaler
+for col in df.columns:
+    col_values = df[col].values.reshape(-1,1)
+    normalized_col = scaler.fit_transform(col_values)
+    df[col] = normalized_col
+# normalized_pos = scaler.fit_transform(pos_values)
+
+# # Replace the original POS column with the normalized values
+# df['POS'] = normalized_pos
 
 #pos_values = unseen_rows['POS'].values.reshape(-1, 1)  # Reshape to 2D array as required by MinMaxScaler
 #scaler = MinMaxScaler()
@@ -130,16 +129,6 @@ df['POS'] = normalized_pos
 #unseen_rows['POS'] = normalized_pos
 
 df.drop('CHROM', axis=1, inplace=True)
-#unseen_rows.drop('CHROM', axis=1, inplace=True)
-
-# Initialize the StandardScaler
-scaler = StandardScaler()
-
-# Fit the scaler to your data and transform it
-scaled_lengths = scaler.fit_transform(df[['LENGTH']])
-
-# Replace the original LENGTH column with the scaled values
-df['LENGTH'] = scaled_lengths
 
 #scaled_lengths = scaler.fit_transform(unseen_rows[['LENGTH']])
 
@@ -149,5 +138,5 @@ df['LENGTH'] = scaled_lengths
 # unseen_rows.drop(['ORIGIN_16.0'])
 # unseen_rows.drop(['ORIGIN_5.0'])
 
-df.to_excel("final12unbalanced.xlsx", index=False)
+df.to_excel("Normalized1.xlsx", index=False)
 #unseen_rows.to_excel('Testing3noorigin.xlsx', index=False)
